@@ -1,0 +1,310 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>ENG ZOMBIE</title>  
+  <link rel="icon" href="https://url.in.th/Mdveb">  
+  <link rel="preconnect" href="https://fonts.googleapis.com">  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  
+  <link href="https://fonts.googleapis.com/css2?family=Chonburi&display=swap" rel="stylesheet">  
+  <style>  
+    body {  
+      font-family: 'Chonburi', sans-serif;  
+      text-align: center;  
+      background-color: #222;  
+      color: white;  
+      margin: 0;  
+      padding: 20px;  
+    }  
+    .zombie {  
+      font-size: 50px;  
+      position: absolute;  
+      top: 100px;  
+      transition: left 0.1s linear;  
+    }  
+    .player {  
+      font-size: 40px;  
+      position: absolute;  
+      top: 100px;  
+      right: 0;  
+    }  
+    #gameArea {  
+      position: relative;  
+      height: 300px;  
+      border: 2px solid #444;  
+      margin-bottom: 20px;  
+    }  
+    .choice {  
+      margin: 10px;  
+      padding: 10px 20px;  
+      background: #444;  
+      color: white;  
+      border: none;  
+      cursor: pointer;  
+      font-size: 18px;  
+    }  
+    .choice:hover {  
+      background: #666;  
+    }  
+    #timeBarContainer {  
+      width: 100%;  
+      height: 20px;  
+      background: #555;  
+      border-radius: 10px;  
+      margin-top: 10px;  
+      overflow: hidden;  
+    }  
+    #timeBar {  
+      height: 100%;  
+      width: 100%;  
+      background: limegreen;  
+      transition: width 1s linear, background 0.5s ease;  
+    }  
+    #startScreen {  
+      position: fixed;  
+      top: 0;  
+      left: 0;  
+      width: 100%;  
+      height: 100%;  
+      background: rgba(0, 0, 0, 0.9);  
+      display: flex;  
+      flex-direction: column;  
+      justify-content: center;  
+      align-items: center;  
+      z-index: 10;  
+    }  
+    #startScreen button {  
+      padding: 15px 30px;  
+      font-size: 20px;  
+      cursor: pointer;  
+      background: limegreen;  
+      border: none;  
+      color: white;  
+    }  
+  </style>  
+</head>  
+<body>  
+<div id="startScreen">  
+  <h1>ENG ZOMBIE</h1>  
+  <p>ตอบคำถามภาษาอังกฤษให้ถูกต้องก่อนที่ซอมบี้จะถึงตัวคุณ!</p>  
+  <button id="startButton">เริ่มเกม</button>  
+</div>  
+  
+<h1>ENG ZOMBIE</h1>  
+<div id="gameArea">  
+  <div id="zombie" class="zombie" style="left: 0;">🧟</div>  
+  <div id="player" class="player">🙂</div>  
+</div>  
+<p id="question">Loading...</p>  
+<div id="choicesContainer"></div>  
+<p id="score">คะแนน: 0</p>  
+<p id="mistake">❌️ ผิดได้อีก: 3 ครั้ง</p>  
+<p id="timer">⏱️ เหลือเวลาอีก 15 วินาที</p>  
+<div id="timeBarContainer">  
+  <div id="timeBar"></div>  
+</div>  
+  
+<audio id="soundCorrect" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>  
+<audio id="soundWrong" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>  
+<audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>  
+<audio id="zombieGroan" src="https://cdn.pixabay.com/download/audio/2021/09/04/audio_d195b61814.mp3" loop></audio>  
+  
+<script>  
+const allQuestions = [  
+  { word: "apple", choices: ["แอปเปิ้ล", "รถยนต์"], correct: 0 },  
+  { word: "run", choices: ["วิ่ง", "หยุด"], correct: 0 },  
+  { word: "blue", choices: ["น้ำเงิน", "เขียว"], correct: 0 },  
+  { word: "book", choices: ["หนังสือ", "เก้าอี้"], correct: 0 },  
+  { word: "honey", choices: ["น้ำผึ้ง", "เกลือ"], correct: 0 },  
+  { word: "great", choices: ["เยี่ยม", "แย่"], correct: 0 },  
+  { word: "above", choices: ["ข้างบน", "ข้างล่าง"], correct: 0 },  
+  { word: "obsolete", choices: ["ล้าสมัย", "ทันสมัย"], correct: 0 },  
+  { word: "plausible", choices: ["เป็นไปได้", "เหลวไหล"], correct: 0 },  
+  { word: "hostile", choices: ["เป็นศัตรู", "เป็นมิตร"], correct: 0 },  
+  { word: "across", choices: ["ข้าม", "อยู่ข้าง"], correct: 0 },  
+  { word: "again", choices: ["อีกครั้ง", "ไม่อีกแล้ว"], correct: 0 },  
+  { word: "after", choices: ["หลังจาก", "ก่อน"], correct: 0 },  
+  { word: "among", choices: ["ท่ามกลาง", "นอกเหนือ"], correct: 0 },  
+  { word: "answer", choices: ["คำตอบ", "คำถาม"], correct: 0 },  
+  { word: "believe", choices: ["เชื่อ", "สงสัย"], correct: 0 },  
+  { word: "below", choices: ["ข้างใต้", "ข้างบน"], correct: 0 },  
+  { word: "better", choices: ["ดีกว่า", "แย่กว่า"], correct: 0 },  
+  { word: "college", choices: ["วิทยาลัย", "โรงพยาบาล"], correct: 0 },  
+  { word: "conversation", choices: ["การสนทนา", "การเต้น"], correct: 0 },  
+  { word: "country", choices: ["ประเทศ", "ทวีป"], correct: 0 },  
+  { word: "decide", choices: ["ตัดสินใจ", "ลังเล"], correct: 0 },  
+  { word: "delicious", choices: ["อร่อย", "ขม"], correct: 0 },  
+  { word: "find", choices: ["ค้นหา", "ซ่อน"], correct: 0 },  
+  { word: "imagine", choices: ["จินตนาการ", "ลืม"], correct: 0 },  
+  { word: "keep", choices: ["เก็บ", "ทิ้ง"], correct: 0 },  
+  { word: "learn", choices: ["เรียนรู้", "หลงลืม"], correct: 0 },  
+  { word: "want", choices: ["ต้องการ", "ไม่สนใจ"], correct: 0 },  
+  { word: "against", choices: ["ต่อต้าน", "ยอมรับ"], correct: 0 },  
+  { word: "start", choices: ["เริ่มต้น", "หยุด"], correct: 0 }  
+];  
+  
+let score = 0;  
+let zombieLeft = 0;  
+let currentQuestion = 0;  
+let timeLeft = 15;  
+let timerInterval;  
+let zombieInterval;  
+let mistakesLeft = 3;  
+const totalQuestions = 30;  
+  
+window.onload = () => {  
+  document.getElementById("startButton").addEventListener("click", startGame);  
+};  
+  
+function shuffle(array) {  
+  for (let i = array.length - 1; i > 0; i--) {  
+    const j = Math.floor(Math.random() * (i + 1));  
+    [array[i], array[j]] = [array[j], array[i]];  
+  }  
+  return array;  
+}  
+  
+function startGame() {  
+  document.getElementById("startScreen").style.display = "none";  
+  document.getElementById("bgMusic").play();  
+  document.getElementById("zombieGroan").play();  
+  score = 0;  
+  zombieLeft = 0;  
+  currentQuestion = 0;  
+  timeLeft = 15;  
+  mistakesLeft = 3;  
+  document.getElementById("score").textContent = `คะแนน: ${score}`;  
+  document.getElementById("mistake").textContent = `❌️ ผิดได้อีก: ${mistakesLeft} ครั้ง`;  
+  showQuestion();  
+}  
+  
+function setEmotion(type) {  
+  const emoji = {  
+    normal: "🧟",  
+    happy: "🧟",  
+    sad: "😢",  
+    shocked: "❌️"  
+  };  
+  document.getElementById("zombie").textContent = emoji[type] || "🧟";  
+}  
+  
+function playSound(id) {  
+  const sound = document.getElementById(id);  
+  if (sound) {  
+    sound.currentTime = 0;  
+    sound.play();  
+  }  
+}  
+  
+function updateTimeBar() {  
+  const bar = document.getElementById("timeBar");  
+  const percent = (timeLeft / 15) * 100;  
+  bar.style.width = percent + "%";  
+  bar.style.background = timeLeft <= 3 ? "red" : timeLeft <= 6 ? "orange" : "limegreen";  
+}  
+  
+function showQuestion() {  
+  if (currentQuestion >= totalQuestions) {  
+    setEmotion('happy');  
+    alert("คุณตอบครบ 30 ข้อแล้ว! 🎉 คะแนน: " + score);  
+    location.reload();  
+    return;  
+  }  
+  
+  const q = allQuestions[currentQuestion];  
+  const shuffled = shuffle([...q.choices]);  
+  const correctAnswer = q.choices[q.correct];  
+  
+  document.getElementById("question").textContent = `คำว่า "${q.word}" แปลว่าอะไร?`;  
+  const choicesContainer = document.getElementById("choicesContainer");  
+  choicesContainer.innerHTML = "";  
+  
+  shuffled.forEach((choice) => {  
+    const btn = document.createElement("button");  
+    btn.className = "choice";  
+    btn.textContent = choice;  
+    btn.onclick = () => checkAnswer(choice === correctAnswer);  
+    choicesContainer.appendChild(btn);  
+  });  
+  
+  timeLeft = 15;  
+  updateTimeBar();  
+  document.getElementById("timer").textContent = `⏱️ เหลือเวลา: ${timeLeft} วินาที`;  
+  clearInterval(timerInterval);  
+  clearInterval(zombieInterval);  
+  timerInterval = setInterval(updateTimer, 1000);  
+  moveZombieSmooth(15);  
+}  
+  
+function updateTimer() {  
+  timeLeft--;  
+  updateTimeBar();  
+  document.getElementById("timer").textContent = `⏱️ เหลือเวลา: ${timeLeft} วินาที`;  
+  if (timeLeft <= 0) {  
+    clearInterval(timerInterval);  
+    clearInterval(zombieInterval);  
+    handleWrong("หมดเวลา!");  
+  }  
+}  
+  
+function moveZombieSmooth(duration) {  
+  const zombie = document.getElementById("zombie");  
+  const player = document.getElementById("player");  
+  const playerLeft = player.offsetLeft;  
+  const zombieWidth = zombie.offsetWidth;  
+  const maxLeft = playerLeft - zombieWidth;  
+  const fps = 60;  
+  const totalFrames = duration * fps;  
+  const distancePerFrame = maxLeft / totalFrames;  
+  
+  zombieLeft = 0;  
+  zombie.style.left = "0px";  
+  
+  zombieInterval = setInterval(() => {  
+    zombieLeft += distancePerFrame;  
+    if (zombieLeft >= maxLeft) {  
+      clearInterval(timerInterval);  
+      clearInterval(zombieInterval);  
+      alert("ซอมบี้กินคุณแล้ว! 😱 คะแนนสุดท้าย: " + score);  
+      location.reload();  
+    } else {  
+      zombie.style.left = zombieLeft + "px";  
+    }  
+  }, 1000 / fps);  
+}  
+  
+function handleWrong(msg) {  
+  playSound("soundWrong");  
+  setEmotion("shocked");  
+  mistakesLeft--;  
+  document.getElementById("mistake").textContent = `❌️ ผิดได้อีก: ${mistakesLeft} ครั้ง`;  
+  
+  if (mistakesLeft <= 0) {  
+    alert(`คุณแพ้แล้ว! ซอมบี้กินคุณเรียบร้อย 😱 คะแนนสุดท้าย: ${score}`);  
+    location.reload();  
+  } else {  
+    alert(msg);  
+    showQuestion();  
+  }  
+}  
+  
+function checkAnswer(isCorrect) {  
+  clearInterval(timerInterval);  
+  clearInterval(zombieInterval);  
+  if (isCorrect) {  
+    playSound("soundCorrect");  
+    score += 10;  
+    zombieLeft = 0;  
+    document.getElementById("zombie").style.left = "0px";  
+    setEmotion("happy");  
+    document.getElementById("score").textContent = `คะแนน: ${score}`;  
+    currentQuestion++;  
+    showQuestion();  
+  } else {  
+    handleWrong("ตอบผิด!");  
+  }  
+}  
+</script>  
+</body>  
+</html>
