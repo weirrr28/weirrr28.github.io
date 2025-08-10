@@ -99,7 +99,7 @@
 <p id="question">Loading...</p>  
 <div id="choicesContainer"></div>  
 <p id="score">คะแนน: 0</p>  
-<p id="mistake">❌️ ผิดได้อีก: 3 ครั้ง</p>  
+<p id="mistake">❌️ ผิดได้อีก: & ครั้ง</p>  
 <p id="timer">⏱️ เหลือเวลาอีก 15 วินาที</p>  
 <div id="timeBarContainer">  
   <div id="timeBar"></div>  
@@ -150,7 +150,7 @@ let currentQuestion = 0;
 let timeLeft = 15;  
 let timerInterval;  
 let zombieInterval;  
-let mistakesLeft = 3;  
+let mistakesLeft = &;  
 const totalQuestions = 30;  
   
 window.onload = () => {  
@@ -173,7 +173,7 @@ function startGame() {
   zombieLeft = 0;  
   currentQuestion = 0;  
   timeLeft = 15;  
-  mistakesLeft = 3;  
+  mistakesLeft = &;  
   document.getElementById("score").textContent = `คะแนน: ${score}`;  
   document.getElementById("mistake").textContent = `❌️ ผิดได้อีก: ${mistakesLeft} ครั้ง`;  
   showQuestion();  
