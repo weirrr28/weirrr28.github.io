@@ -151,9 +151,7 @@ let timerInterval;
 let zombieInterval;
 const totalQuestions = 30;
 
-window.onload = () => {
-  document.getElementById("startButton").addEventListener("click", startGame);
-};
+document.getElementById("startButton").addEventListener("click", startGame);
 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -260,10 +258,9 @@ function moveZombieSmooth(duration) {
   zombieInterval = setInterval(() => {
     zombieLeft += distancePerFrame;
     if (zombieLeft >= maxLeft) {
-      clearInterval(timerInterval);
       clearInterval(zombieInterval);
-      alert("ซอมบี้กินคุณแล้ว! 😱 คะแนนสุดท้าย: " + score);
-      location.reload();
+      clearInterval(timerInterval);
+      handleWrong("ซอมบี้ถึงตัวแล้ว!");
     } else {
       zombie.style.left = zombieLeft + "px";
     }
@@ -274,6 +271,7 @@ function handleWrong(msg) {
   playSound("soundWrong");
   setEmotion("shocked");
   alert(msg);
+  currentQuestion++;
   showQuestion();
 }
 
@@ -295,4 +293,4 @@ function checkAnswer(isCorrect) {
 }
 </script>
 </body>
-</html>
+  </html>
